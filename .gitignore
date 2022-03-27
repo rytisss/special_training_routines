@@ -1,3 +1,11 @@
 /__pycache__
 /.idea
 /conventional_method_cpp_build
+UNet4
+UNet4_coord
+UNet4_coord_SE
+UNet4_res_aspp
+UNet4_res_aspp_coord
+UNet4_res_aspp_coord_SE
+UNet4_res_aspp_SE
+UNet4_SE

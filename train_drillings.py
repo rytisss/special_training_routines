@@ -15,6 +15,8 @@ image_width = 320
 image_height = 320
 image_channels = 1
 
+test_data_generator = None
+
 weights_output = r'C:\Users\rytis\Desktop\major_review_disertation/Drilling_output/'
 
 training_data_dir = r'C:\Users\rytis\Desktop\major_review_disertation\dataForTraining_v3\dataForTraining_v3/'
@@ -33,11 +35,14 @@ test_labels_dir = 'data/label/'
 # batch size. How many samples you want to feed in one iteration?
 batch_size = 8
 # number_of_epoch. How many epochs you want to train?
-number_of_epoch = 2
+number_of_epoch = 10
 # initial learning rate
 initial_lr = 0.001
 # After how many epochs you want to reduce learning rate by half?
 lr_scheduling_epochs = 4
+
+number_of_train_iterations = 1
+number_of_test_iterations = 1
 
 
 class CustomSaver(tf.keras.callbacks.Callback):
@@ -58,10 +63,14 @@ class CustomSaver(tf.keras.callbacks.Callback):
         val_score = logs['val_dice_eval']
         self.model.save(output_dir + f'_{val_score}.hdf5')
 
-    def on_batch_end(self, batch, logs=None):
-        self.iteration_counter = self.iteration_counter + 1
-        if self.iteration_counter % 1000 == 0:
-            self.model.save(output_dir + f'_{self.iteration_counter}.hdf5')
+    # def on_batch_end(self, batch, logs=None):
+    #     global test_data_generator
+    #     self.iteration_counter = self.iteration_counter + 1
+    #     if self.iteration_counter % 5 == 0:
+    #         print('testing')
+    #         metrics = self.model.evaluate(test_data_generator, verbose=0, steps=number_of_test_iterations)
+    #         dice_score = metrics[1]
+    #         self.model.save(output_dir + f'_{self.iteration_counter}_{dice_score}.hdf5')
 
 
 # This function keeps the learning rate at 0.001 for the first ten epochs
@@ -76,6 +85,11 @@ def scheduler(epoch):
 def train():
     global output_dir
     global weights_output
+    global test_data_generator
+
+    global number_of_test_iterations
+    global number_of_train_iterations
+
     architectures = ['UNet4',
                      'UNet4_SE',
                      'UNet4_coord',
@@ -131,7 +145,7 @@ def train():
         if configuration_name == 'UNet4':
             print('*' * 50)
             print('UNet4')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=False,
@@ -143,7 +157,7 @@ def train():
         elif configuration_name == 'UNet4_SE':
             print('*' * 50)
             print('UNet4_SE')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=True,
@@ -155,7 +169,7 @@ def train():
         elif configuration_name == 'UNet4_coord':
             print('*' * 50)
             print('UNet4_coord')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=False,
@@ -167,7 +181,7 @@ def train():
         elif configuration_name == 'UNet4_coord_SE':
             print('*' * 50)
             print('UNet4_coord_SE')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=True,
@@ -179,7 +193,7 @@ def train():
         elif configuration_name == 'UNet4_res_aspp':
             print('*' * 50)
             print('UNet4_res_aspp')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=False,
@@ -191,7 +205,7 @@ def train():
         elif configuration_name == 'UNet4_res_aspp_SE':
             print('*' * 50)
             print('UNet4_res_aspp_SE')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=True,
@@ -203,7 +217,7 @@ def train():
         elif configuration_name == 'UNet4_res_aspp_coord':
             print('*' * 50)
             print('UNet4_res_aspp_coord')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=False,
@@ -215,7 +229,7 @@ def train():
         elif configuration_name == 'UNet4_res_aspp_coord_SE':
             print('*' * 50)
             print('UNet4_res_aspp_coord_SE')
-            model = unet_autoencoder(filters_in_input=16,
+            model = unet_autoencoder(filters_in_input=32,
                                      input_size=(320, 320, 1),
                                      learning_rate=1e-3,
                                      use_se=True,
@@ -239,6 +253,7 @@ def train():
                   validation_steps=number_of_test_iterations,
                   callbacks=[saver, learning_rate_scheduler],
                   shuffle=True)
+
 
 if __name__ == "__main__":
     train()

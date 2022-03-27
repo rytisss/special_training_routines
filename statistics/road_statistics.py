@@ -4,31 +4,36 @@ import cv2
 from utilities import gather_image_from_dir, get_file_name
 from evaluation.statistics import Statistics
 from scipy.stats import sem
+import Orange
+import matplotlib.pyplot as plt
+
+from statsmodels.stats.weightstats import ztest as ztest
 
 if __name__ == "__main__":
     dataset_dir = r'C:\Users\rytis\Desktop\major_review_disertation\pavement_datasets/'
     prediction_dir = r'C:\Users\rytis\Desktop\major_review_disertation\pavement_all/'
     datasets = ['crack500', 'CrackForest', 'GAPs384']
-
     architectures = glob.glob(prediction_dir + '*/')
 
-    for architecture in architectures:
+    architecture_dice_values = {}
 
-        for dataset in datasets:
+    for dataset in datasets:
+        dataset_dict = {}
+        for architecture in architectures:
             print(50 * '*')
-
             prediction_folder = architecture + dataset + '/'
             print(prediction_folder)
             predicted_images = gather_image_from_dir(prediction_folder)
+
+            architecture_name = os.path.basename(os.path.dirname(architecture))
+
             predicted_images.sort()
             labels = gather_image_from_dir(dataset_dir + dataset + '/Test/Labels/')
             labels.sort()
-
             tp_array = []
             fp_array = []
             tn_array = []
             fn_array = []
-
             recall_array = []
             precision_array = []
             accuracy_array = []
@@ -36,9 +41,7 @@ if __name__ == "__main__":
             IoU_array = []
             dice_array = []
             mcc_array = []
-
             counter = 0
-
 
             for i, label_path in enumerate(labels):
                 prediction = cv2.imread(predicted_images[i], cv2.IMREAD_GRAYSCALE)
@@ -115,6 +118,46 @@ if __name__ == "__main__":
             print(f'Dice_mean: {sem(dice_array)}')
             print(f'MCC_mean: {sem(mcc_array)}')
 
+            dataset_dict.update({architecture_name: dice_array})
+
             # cv2.imshow('label', label)
             # cv2.imshow('prediction', prediction)
             # cv2.waitKey(1)
+        architecture_dice_values.update({dataset: dataset_dict})
+
+    for architecture_name, architecture_results in architecture_dice_values.items():
+        best_architecture = ''
+        if 'GAPs384' == architecture_name:
+            best_architecture = 'pretrained_UNet4_res_aspp_AG'
+        elif 'CrackForest' == architecture_name:
+            best_architecture = 'pretrained_Unet4_res_asppWF'
+        elif 'crack500' == architecture_name:
+            best_architecture = 'pretrained_Unet4_res_asppWF_AG'
+        else:
+            print('Error!')
+        print(50 * '*')
+        print(architecture_name)
+        print(50 * '*')
+        for name, values in architecture_results.items():
+            if name == best_architecture:
+                continue
+            z_test_significance = ztest(architecture_results[best_architecture], architecture_results[name],
+                                        value=0)
+            print(f'Ztest {best_architecture} to {name} {z_test_significance}')
+
+    architectures = ['UNet', 'ResUNet', 'ResUNet+ASPP', 'ResUNet+ASPP+AG', 'ResUNet+ASPP_WF', 'ResUNet+ASPP_WF+AG']
+    avg_rank = [5.6666, 4.6666, 2.3333, 3.0, 2.0, 3.3333]
+
+    # bonferroni-dunn
+    cd = Orange.evaluation.compute_CD(avg_rank, 3, alpha='0.05', test='bonferroni-dunn') #tested on 3 datasets
+    print('cd', cd)
+
+    Orange.evaluation.graph_ranks(avg_rank, architectures, cd=cd, width=5, textspace=1.5, cdmethod=0)
+    plt.show()
+
+    # Nemenyi
+    cd = Orange.evaluation.compute_CD(avg_rank, 3, alpha='0.05') #tested on 3 datasets
+    print('cd', cd)
+
+    Orange.evaluation.graph_ranks(avg_rank, architectures, cd=cd, width=5, textspace=1.5)
+    plt.show()
