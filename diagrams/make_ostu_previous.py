@@ -220,7 +220,7 @@ def main():
     cv2.imshow('otsu', otsu_threshold)
 
     make_single_graph_grayscale('Image', image, 'image.png', False)
-    make_single_graph_grayscale('Inverted binary image (Otsu threshold)', otsu_threshold, 'otsu.png', False)
+    make_single_graph_grayscale('Binary image (Otsu threshold)', otsu_threshold, 'otsu.png', True)
 
     cv2.waitKey(1)
     g = 2
