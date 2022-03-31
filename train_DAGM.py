@@ -1,5 +1,8 @@
 import glob
 import os
+
+import cv2
+import numpy as np
 import tensorflow as tf
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -8,7 +11,7 @@ tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from models.autoencoder import unet_autoencoder
 from models.losses import Loss
 from models.data_loader import data_generator
-from utilities import gather_image_from_dir
+from utilities import gather_image_from_dir, make_directory, get_file_name
 
 # Data
 image_width = 512
@@ -18,6 +21,8 @@ image_channels = 1
 weights_output = r'C:\Users\rytis\Desktop\major_review_disertation/DAGM_output/'
 
 data_dir = r'C:\Users\rytis\Desktop\major_review_disertation\DAGM/'
+
+test_images = ''
 
 # will be changed on each training
 output_dir = ''
@@ -34,7 +39,23 @@ batch_size = 2
 # number_of_epoch. How many epochs you want to train?
 number_of_epoch = 2
 # initial learning rate
-initial_lr = 0.001
+initial_lr = 0.0005
+
+
+def image_to_tensor(image):
+    # preprocess
+    image_norm = image / 255
+    image_norm = np.reshape(image_norm, image_norm.shape + (1,))
+    image_norm = np.reshape(image_norm, (1,) + image_norm.shape)
+    return image_norm
+
+
+def tensor_to_image(tensor):
+    # normalize to image
+    prediction_image_norm = tensor[0, :, :, 0]
+    prediction_image = prediction_image_norm * 255
+    prediction_image = prediction_image.astype(np.uint8)
+    return prediction_image
 
 
 class CustomSaver(tf.keras.callbacks.Callback):
@@ -51,13 +72,31 @@ class CustomSaver(tf.keras.callbacks.Callback):
                 self.model.save(output_dir + 'best_weights.hdf5')
         else:
             print('Key val_dice_eval does not exist!')
+        # make test
+        global test_images
         val_score = logs['val_dice_eval']
         self.model.save(output_dir + f'_{val_score}.hdf5')
+        test_image_paths = gather_image_from_dir(test_images)
+        folder_name = logs['val_dice_eval']
+        image_output_dir = f'{output_dir}{folder_name}/'
+        make_directory(image_output_dir)
+        for test_image_path in test_image_paths:
+            image = cv2.imread(test_image_path, cv2.IMREAD_GRAYSCALE)
+            image_name = get_file_name(test_image_path)
+            # preprocess
+            norm_image = image_to_tensor(image)
+            # predict
+            prediction = self.model.predict(norm_image)
+            # make image uint8
+            prediction_image = tensor_to_image(prediction)
+            cv2.imwrite(image_output_dir + image_name + '.png', prediction_image)
+
 
 
 def train():
     global output_dir
     global weights_output
+    global test_images
     kernels = [8, 16, 32]
     layers = [2, 3, 4, 5]
     # gather all the classes
@@ -92,9 +131,9 @@ def train():
                 # Define model
                 model = unet_autoencoder(filters_in_input=kernel,
                                          input_size=(image_width, image_width, image_channels),
-                                         loss_function=Loss.CROSSENTROPY50DICE50,
+                                         loss_function=Loss.DICE,
                                          downscale_times=layer,
-                                         learning_rate=1e-3,
+                                         learning_rate=5e-4,
                                          use_se=False,
                                          use_aspp=False,
                                          use_coord_conv=False,
@@ -105,14 +144,14 @@ def train():
 
                 # Define data generator that will take images from directory
                 train_data_generator = data_generator(batch_size,
-                                                      image_folder=train_images_dir,
-                                                      label_folder=train_labels_dir,
+                                                      image_folder=train_images,
+                                                      label_folder=train_labels,
                                                       target_size=(image_width, image_height),
                                                       image_color_mode='grayscale')
 
                 test_data_generator = data_generator(batch_size,
-                                                     image_folder=test_images_dir,
-                                                     label_folder=test_labels_dir,
+                                                     image_folder=test_images,
+                                                     label_folder=test_labels,
                                                      target_size=(image_width, image_height),
                                                      image_color_mode='grayscale')
                 # create weights output directory

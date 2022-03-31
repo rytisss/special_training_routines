@@ -92,6 +92,39 @@ def make_single_graph_grayscale(name, image, save_path, reverse_colormap=True):
     plt.close(fig)
 
 
+def plot_histogram(name, image, save_path, max_y=None):
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    plt.title(name, fontsize=20)
+    plt.hist(image.ravel(), 256, [0, 256])
+    ax.set_xlabel('Pixel Intensity', fontsize=16)
+    ax.set_ylabel('Pixel Count', fontsize=16)
+    plt.grid(color='#d68b5c', linestyle='--', linewidth=0.5, alpha=0.5)
+    # plt.tight_layout()
+    if max_y:
+        plt.ylim([0, max_y])
+
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label.set_fontsize(12)
+
+    for tick in ax.yaxis.get_major_ticks():
+        tick.label.set_fontsize(12)
+
+    plt.savefig(save_path, bbox_inches='tight')
+    # plt.close(fig)
+    # sns.displot(hist, len(hist), [0,256])
+    # plt.show()
+
+
+def get_highest_image_value(image):
+    max_value = 0
+    for i in range(0, 256):
+        occurencies = np.count_nonzero(image == i)
+        if occurencies >= max_value:
+            max_value = occurencies
+    return max_value
+
+
 def main():
     # image_400_exposure = cv2.imread(r'C:\src\personal\special_training_routines\special_training_routines/diagrams/exposure_400.png', cv2.IMREAD_GRAYSCALE)
     # image_200_exposure = cv2.imread(r'C:\src\personal\special_training_routines\special_training_routines/diagrams/exposure_200.png', cv2.IMREAD_GRAYSCALE)
@@ -106,10 +139,20 @@ def main():
         make_single_graph_grayscale('Image', image, 'cases_output/' + name + '.png', False)
         image_gamma_08 = Augmentation.Adjust_gamma(image, 0.8)
         image_gamma_12 = Augmentation.Adjust_gamma(image, 1.2)
+
+        image_max_y = get_highest_image_value(image)
+        image_gamma_08_max_y = get_highest_image_value(image_gamma_08)
+        image_gamma_12_max_y = get_highest_image_value(image_gamma_12)
+
+        max_y = max(max(image_max_y, image_gamma_08_max_y), image_gamma_12_max_y) + 100
+
+        plot_histogram('Image', image, 'cases_output/' + name + '.png', max_y)
         make_single_graph_grayscale('Gamma correction 1.2', image_gamma_12, 'cases_output/' + name + '_gamma_12.png',
                                     False)
+        plot_histogram('Gamma correction 1.2', image_gamma_12, 'cases_output/' + name + '_gamma_12.png', max_y)
         make_single_graph_grayscale('Gamma correction 0.8', image_gamma_08, 'cases_output/' + name + '_gamma_08.png',
                                     False)
+        plot_histogram('Gamma correction 0.8', image_gamma_08, 'cases_output/' + name + '_gamma_08.png', max_y)
         gaussian_noise = Augmentation.AddNoise(image)
         make_single_graph_grayscale('Gaussian noise', gaussian_noise, 'cases_output/' + name + '_gaussian_noise.png',
                                     False)
