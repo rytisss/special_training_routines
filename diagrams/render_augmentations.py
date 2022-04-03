@@ -2,6 +2,8 @@ import os
 import glob
 import cv2
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from augmentation import Augmentation
@@ -52,20 +54,20 @@ def invert_image(image):
 def add_subplot(fig, rows, cols, pos, name, image, colorspace, min, max):
     image_plot = fig.add_subplot(rows, cols, pos)
     image_plot.title.set_text(name)
-    image_plot.title.set_fontsize(30)
+    image_plot.title.set_fontsize(35)
 
     for tick in image_plot.xaxis.get_major_ticks():
-        tick.label.set_fontsize(22)
+        tick.label.set_fontsize(26)
 
     for tick in image_plot.yaxis.get_major_ticks():
-        tick.label.set_fontsize(22)
+        tick.label.set_fontsize(26)
 
     im = plt.imshow(image, cmap=colorspace, vmin=min, vmax=max)
     divider = make_axes_locatable(image_plot)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     cb = plt.colorbar(im, cax=cax)
     for t in cb.ax.get_yticklabels():
-        t.set_fontsize(22)
+        t.set_fontsize(26)
 
 
 def make_single_graph(name, image, save_path):
@@ -95,20 +97,20 @@ def make_single_graph_grayscale(name, image, save_path, reverse_colormap=True):
 def plot_histogram(name, image, save_path, max_y=None):
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-    plt.title(name, fontsize=20)
+    plt.title(name, fontsize=22)
     plt.hist(image.ravel(), 256, [0, 256])
-    ax.set_xlabel('Pixel Intensity', fontsize=16)
-    ax.set_ylabel('Pixel Count', fontsize=16)
+    ax.set_xlabel('Pixel Intensity', fontsize=15)
+    ax.set_ylabel('Pixel Count', fontsize=15)
     plt.grid(color='#d68b5c', linestyle='--', linewidth=0.5, alpha=0.5)
     # plt.tight_layout()
     if max_y:
         plt.ylim([0, max_y])
 
     for tick in ax.xaxis.get_major_ticks():
-        tick.label.set_fontsize(12)
+        tick.label.set_fontsize(15)
 
     for tick in ax.yaxis.get_major_ticks():
-        tick.label.set_fontsize(12)
+        tick.label.set_fontsize(15)
 
     plt.savefig(save_path, bbox_inches='tight')
     # plt.close(fig)
@@ -146,13 +148,13 @@ def main():
 
         max_y = max(max(image_max_y, image_gamma_08_max_y), image_gamma_12_max_y) + 100
 
-        plot_histogram('Image', image, 'cases_output/' + name + '.png', max_y)
+        plot_histogram('Image', image, 'cases_output/' + name + '_hist.png', max_y)
         make_single_graph_grayscale('Gamma correction 1.2', image_gamma_12, 'cases_output/' + name + '_gamma_12.png',
                                     False)
-        plot_histogram('Gamma correction 1.2', image_gamma_12, 'cases_output/' + name + '_gamma_12.png', max_y)
+        plot_histogram('Gamma correction 1.2', image_gamma_12, 'cases_output/' + name + '_gamma_12_hist.png', max_y)
         make_single_graph_grayscale('Gamma correction 0.8', image_gamma_08, 'cases_output/' + name + '_gamma_08.png',
                                     False)
-        plot_histogram('Gamma correction 0.8', image_gamma_08, 'cases_output/' + name + '_gamma_08.png', max_y)
+        plot_histogram('Gamma correction 0.8', image_gamma_08, 'cases_output/' + name + '_gamma_08_hist.png', max_y)
         gaussian_noise = Augmentation.AddNoise(image)
         make_single_graph_grayscale('Gaussian noise', gaussian_noise, 'cases_output/' + name + '_gaussian_noise.png',
                                     False)

@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage{algorithm,algpseudocode}
+\usepackage{amsmath}
+\usepackage{fullwidth}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\makeatletter
+\renewcommand{\fnum@algorithm}{\fname@algorithm}
+\makeatother
+
+\begin{document}
+
+\begin{fullwidth}[width=\linewidth+6cm,leftmargin=-3cm,rightmargin=+3cm]
+\begin{algorithm}[H]
+\caption{Full Image Binary Segmentation with Sliding Window}
+\label{alg:loop}
+\begin{algorithmic}[1]
+\Require{$image$: input image,\par
+$model$: convolutional autoencoder, \par
+$x_{OL}$: sliding window amount of pixels overlap along x axis,\par
+$y_{OL}$: sliding window amount of pixels overlap along x axis}
+\Ensure{$segmentationMap$: binary segmentation of input image}
+\Statex
+\Function{Segment}{$image$, $model$, $x_{OL}$, $y_{OL}$}
+    \State {$w_{img}$, $h_{img}$ $\gets$ {$getImageSize(image)$}} \algorithmiccomment{Image width and height}
+    \State {$w_{in}$, $h_{in}$ $\gets$ {$getModelInputSize(model)$}}  \algorithmiccomment{Model input width and height}
+    \State {$regions[]$ $\gets$ {$makeRegions(w_{img}, h_{img}, w_{in}, h_{in}, x_{OL},  y_{OL})$}} \algorithmiccomment{Each region consists of $x$, $y$, $width$, $height$}
+    \State {$N_{regions}$ $\gets$ {$getLength(regions[])$}} \algorithmiccomment{Size of regions array}
+    \State {$segmentation$ $\gets$ {$makeEmptyImage(w_{img}, h_{img})$}} \algorithmiccomment{Empty black image for prediction storage}
+    \For{$k \gets 0$ to $N_{regions}$}                    
+        \State {$regionImage$  $\gets$ {$cropImageRegion(image, regions[k])$}} \algorithmiccomment{Crop region from full image}
+        \State {$regionImage_{proc}$  $\gets$ {$preprocess(regionImage)$}} \algorithmiccomment{Scale and make input image tensor-like}
+        \State {$prediction$  $\gets$ {$model.predict(regionImage_{proc})$}} \algorithmiccomment{Segment region}
+        \State {$regionSegmentation$  $\gets$ {$postProcess(prediction)$}} \algorithmiccomment{Get as image, threshold and rescale}
+        \State {$bitwiseOR(segmentation(regions[k]), regionSegmentation)$}
+        \algorithmiccomment{Add segmented region to segmentation}
+        
+        
+    \EndFor
+    \State \Return {$segmentation$}
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+\end{fullwidth}
+
+\end{document}
