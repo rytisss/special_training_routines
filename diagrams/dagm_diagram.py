@@ -49,14 +49,11 @@ fig, ax1 = plt.subplots()
 # Create bars
 barplot = ax1.bar(y_pos, times, color=bar_colors, alpha=0.7)
 
-
-
-
 # Create names on the x-axis
-plt.title('Average configuration processing time for 1 image', fontsize=18)
-plt.xlabel('CNN configuration', fontsize=14)
-ax1.set_ylabel('Time, [ms]', fontsize=13)
-ax1.set_xlabel('CNN configuration', fontsize=13)
+plt.title('Average each configuration Dice scores and processing time for 1 image', fontsize=13)
+plt.xlabel('CNN configuration', fontsize=12)
+ax1.set_ylabel('Time, ms', fontsize=12)
+ax1.set_xlabel('CNN configuration', fontsize=12)
 plt.xticks(y_pos, bars, rotation='vertical', fontsize=10)
 plt.grid(color='r', linestyle='-', alpha=0.1)
 
@@ -69,32 +66,32 @@ colors.append((253.0 / 255.0, 1.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0))
 
 ax2 = ax1.twinx()
 ax2.set_ylim(0.45, 1.001)
-line = ax2.plot(y_pos, class_1, label='Class 1', alpha=0.4)
+line = ax2.plot(y_pos, class_1, label='Class 1', alpha=0.45)
 line[0].set_color(colors[0])
 line[0].set_linestyle('dashed')
-line = ax2.plot(y_pos, class_2, label='Class 2', alpha=0.4)
+line = ax2.plot(y_pos, class_2, label='Class 2', alpha=0.45)
 line[0].set_color(colors[1])
 line[0].set_linestyle('dashed')
-line = ax2.plot(y_pos, class_3, label='Class 3', alpha=0.4)
+line = ax2.plot(y_pos, class_3, label='Class 3', alpha=0.45)
 line[0].set_color(colors[2])
 line[0].set_linestyle('dashed')
-line = ax2.plot(y_pos, class_4, label='Class 4', alpha=0.4)
+line = ax2.plot(y_pos, class_4, label='Class 4', alpha=0.45)
 line[0].set_color(colors[3])
 line[0].set_linestyle('dashed')
-line = ax2.plot(y_pos, class_5, label='Class 5', alpha=0.4)
+line = ax2.plot(y_pos, class_5, label='Class 5', alpha=0.45)
 line[0].set_color(colors[4])
 line[0].set_linestyle('dashed')
-line = ax2.plot(y_pos, class_6, label='Class 6', alpha=0.4)
+line = ax2.plot(y_pos, class_6, label='Class 6', alpha=0.45)
 line[0].set_color(colors[5])
 line[0].set_linestyle('dashed')
-line = ax2.plot(y_pos, average, label='Average')
+line = ax2.plot(y_pos, average, label='Average all')
 line[0].set_color('#FFA500')
 line[0].set_linewidth(5)
 #line[0].set_linestyle('dashed')
 
-ax2.legend(bbox_to_anchor=(1.37, 1.00))
+ax2.legend(bbox_to_anchor=(1.4, 0.7))
 
-ax2.set_ylabel('Dice score', fontsize=14)
+ax2.set_ylabel('Dice score', fontsize=13)
 
 def autolabel(rects):
     for idx, rect in enumerate(barplot):

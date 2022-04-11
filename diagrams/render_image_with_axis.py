@@ -1,6 +1,8 @@
 import os
 import glob
 import cv2
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -177,10 +179,10 @@ def form_conventional_output_diagram(image_path, label_path, output_dir):
 
 
 def main():
-    images_to_visualize_path = r'D:\straipsniai\straipsnis\dataForTraining_v3_only_epoch\dataForTraining_v3_only_epoch\best_weights\output\interesting parts\images/'
+    images_to_visualize_path = r'C:\Users\rytis\Desktop\noise investigation/'
     reference_images = gather_image_from_dir(images_to_visualize_path)
 
-    methods_to_investigate_folder = r'C:\Users\rytis\Desktop\conventional_to_visualize_clustered/'
+    methods_to_investigate_folder = r'C:\Users\rytis\Desktop\noise investigation/'
 
     method_folders = glob.glob(methods_to_investigate_folder + '*/')
     for method_folder in method_folders:
@@ -190,15 +192,20 @@ def main():
             # take out the name from the path
             name = get_image_name(method_folder + method_image_path)
             image = cv2.imread(method_folder + method_image_path, cv2.IMREAD_GRAYSCALE)
+            if image is None:
+                print(f'None in {method_image_path}')
+                break
             #image = cv2.normalize(image, image, 0, 255, cv2.NORM_MINMAX)
             #image = 255 - image
-            make_output_directory('output_clustered/')
+            make_output_directory('output/')
             title = method_name
             if '_inv' in title:
                 title = title.replace('_inv', '')
             if '_clustered' in title:
                 title = title.replace('_clustered', '')
-            make_single_graph_grayscale(title + ' Clustered', image, 'output_clustered/' + name + '_' + method_name + '.png', True)
+            if '___new' in title:
+                title = title.replace('___new', '')
+            make_single_graph_grayscale(title, image, 'output/' + name + '_' + method_name + '.png', True)
 
         g = 1
 

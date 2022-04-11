@@ -8,9 +8,9 @@ from scipy.stats import sem
 from statsmodels.stats.weightstats import ztest as ztest
 
 if __name__ == "__main__":
-    label_dir = r'C:\Users\rytis\Desktop\major_review_disertation\test_crop_corners\label/'
-    #prediction_dir = r'C:\src\personal\special_training_routines\special_training_routines\data_wrangling/'
-    prediction_dir = r'C:\Users\rytis\Desktop\major_review_disertation\test_crop_corners\cnn_predictions/'
+    label_dir = r'C:\Users\rytis\Desktop\major_review_disertation\test_crop\label/'
+    prediction_dir = r'C:\Users\rytis\Desktop\conventional_methods\clustered/'
+    #prediction_dir = r'C:\Users\rytis\Desktop\major_review_disertation\test_crop_corners\cnn_predictions/'
 
     label_paths = gather_image_from_dir(label_dir)
     label_paths.sort()

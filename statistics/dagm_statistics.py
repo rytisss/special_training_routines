@@ -4,6 +4,9 @@ import os
 import cv2
 from utilities import gather_image_from_dir
 from evaluation.statistics import Statistics
+from scipy.stats import sem
+from sklearn.metrics import mean_absolute_error
+from itertools import repeat
 
 data_dir = r'D:\DAGM/'
 
@@ -49,7 +52,6 @@ def eval():
                 IoU_array = []
                 dice_array = []
                 mcc_array = []
-
 
                 counter = 0
 
@@ -108,13 +110,14 @@ def eval():
                 tn_sum = sum(tn_array)
                 fn_sum = sum(fn_array)
 
-                print(f'acc: {avg_accuracy}')
-                print(f'recall: {avg_recall}')
-                print(f'precision: {avg_precision}')
-                print(f'f1: {avg_f1}')
-                print(f'IoU: {avg_IoU}')
-                print(f'dice: {avg_dice}')
-                print(f'mcc: {avg_mcc}')
+                actual_val = list(repeat(1.0, len(accuracy_array)))
+                print(f'acc: {avg_accuracy}, Standard error of mean = {round(sem(accuracy_array), 4)}')#, Mean absolute error = {round(mean_absolute_error(actual_val,accuracy_array), 4)}')
+                print(f'recall: {avg_recall}, Standard error of mean = {round(sem(recall_array), 4)}')#, Mean absolute error = {round(mean_absolute_error(actual_val,recall_array), 4)}')
+                print(f'precision: {avg_precision}, Standard error of mean = {round(sem(precision_array), 4)}')#, Mean absolute error = {round(mean_absolute_error(actual_val,precision_array), 4)}')
+                #print(f'f1: {avg_f1}, Standard error of mean = {sem(f1_array)}')
+                print(f'IoU: {avg_IoU}, Standard error of mean = {round(sem(IoU_array), 4)}')#, Mean absolute error = {round(mean_absolute_error(actual_val,IoU_array), 4)}')
+                print(f'dice: {avg_dice}, Standard error of mean = {round(sem(dice_array), 4)}')#, Mean absolute error = {round(mean_absolute_error(actual_val,dice_array), 4)}')
+                print(f'mcc: {avg_mcc}, Standard error of mean = {round(sem(mcc_array), 4)}')#, Mean absolute error = {round(mean_absolute_error(actual_val,mcc_array), 4)}')
                 print(f'tp: {tp_sum}')
                 print(f'fp: {fp_sum}')
                 print(f'tn: {tn_sum}')
