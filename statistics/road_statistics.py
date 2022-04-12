@@ -4,7 +4,7 @@ import cv2
 from utilities import gather_image_from_dir, get_file_name
 from evaluation.statistics import Statistics
 from scipy.stats import sem
-import Orange
+#import Orange
 import matplotlib.pyplot as plt
 
 from statsmodels.stats.weightstats import ztest as ztest
@@ -98,25 +98,25 @@ if __name__ == "__main__":
             tn_sum = sum(tn_array)
             fn_sum = sum(fn_array)
 
-            print(f'acc: {avg_accuracy}')
-            print(f'recall: {avg_recall}')
-            print(f'precision: {avg_precision}')
-            print(f'f1: {avg_f1}')
-            print(f'IoU: {avg_IoU}')
-            print(f'dice: {avg_dice}')
-            print(f'mcc: {avg_mcc}')
+            print(f'acc: {avg_accuracy}, acc_mean: {sem(accuracy_array)}')
+            print(f'recall: {avg_recall}, recall_mean: {sem(recall_array)}')
+            print(f'precision: {avg_precision}, precision_mean: {sem(precision_array)}')
+            #print(f'f1: {avg_f1}')
+            print(f'IoU: {avg_IoU}, IoU_mean: {sem(IoU_array)}')
+            print(f'dice: {avg_dice}, Dice_mean: {sem(dice_array)}')
+            print(f'mcc: {avg_mcc}, MCC_mean: {sem(mcc_array)}')
             print(f'tp: {tp_sum}')
             print(f'fp: {fp_sum}')
             print(f'tn: {tn_sum}')
             print(f'fn: {fn_sum}')
             print('---------------')
-            print(f'acc_mean: {sem(accuracy_array)}')
-            print(f'recall_mean: {sem(recall_array)}')
-            print(f'precision_mean: {sem(precision_array)}')
-            print(f'f1_mean: {sem(f1_array)}')
-            print(f'IoU_mean: {sem(IoU_array)}')
-            print(f'Dice_mean: {sem(dice_array)}')
-            print(f'MCC_mean: {sem(mcc_array)}')
+            # print(f'acc_mean: {sem(accuracy_array)}')
+            # print(f'recall_mean: {sem(recall_array)}')
+            # print(f'precision_mean: {sem(precision_array)}')
+            # print(f'f1_mean: {sem(f1_array)}')
+            # print(f'IoU_mean: {sem(IoU_array)}')
+            # print(f'Dice_mean: {sem(dice_array)}')
+            # print(f'MCC_mean: {sem(mcc_array)}')
 
             dataset_dict.update({architecture_name: dice_array})
 
@@ -148,16 +148,16 @@ if __name__ == "__main__":
     architectures = ['UNet', 'ResUNet', 'ResUNet+ASPP', 'ResUNet+ASPP+AG', 'ResUNet+ASPP_WF', 'ResUNet+ASPP_WF+AG']
     avg_rank = [5.6666, 4.6666, 2.3333, 3.0, 2.0, 3.3333]
 
-    # bonferroni-dunn
-    cd = Orange.evaluation.compute_CD(avg_rank, 3, alpha='0.05', test='bonferroni-dunn') #tested on 3 datasets
-    print('cd', cd)
-
-    Orange.evaluation.graph_ranks(avg_rank, architectures, cd=cd, width=5, textspace=1.5, cdmethod=0)
-    plt.show()
-
-    # Nemenyi
-    cd = Orange.evaluation.compute_CD(avg_rank, 3, alpha='0.05') #tested on 3 datasets
-    print('cd', cd)
-
-    Orange.evaluation.graph_ranks(avg_rank, architectures, cd=cd, width=5, textspace=1.5)
-    plt.show()
+    # # bonferroni-dunn
+    # cd = Orange.evaluation.compute_CD(avg_rank, 3, alpha='0.05', test='bonferroni-dunn') #tested on 3 datasets
+    # print('cd', cd)
+    #
+    # Orange.evaluation.graph_ranks(avg_rank, architectures, cd=cd, width=5, textspace=1.5, cdmethod=0)
+    # plt.show()
+    #
+    # # Nemenyi
+    # cd = Orange.evaluation.compute_CD(avg_rank, 3, alpha='0.05') #tested on 3 datasets
+    # print('cd', cd)
+    #
+    # Orange.evaluation.graph_ranks(avg_rank, architectures, cd=cd, width=5, textspace=1.5)
+    # plt.show()
